@@ -5,9 +5,9 @@ A simple IPv6 flow label exercise, to compile run:
 # gcc -pthread server.c -o serve
 
 To run (server will bind to all interfaces and will listen on port 24999):
-# ./client <ipv6_addr_of_server>
-
 # ./server
+
+# ./client <ipv6_addr_of_server>
 
 Only works on IPv6 enabled machines. More examples TBA.
 
