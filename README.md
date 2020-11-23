@@ -13,6 +13,6 @@ Only works on IPv6 enabled machines. More examples TBA.
 
 To check the traffic you can use e.g. tshark like this:
 # tshark -i <net_device> -f "ip6 and port 24999" -T fields -e frame.number -e frame.time_delta \
-  -e ipv6.src -e ipv6.dst -e ipv6.flow
+  -e ipv6.src -e ipv6.dst -e tcp.port -e ipv6.flow
 ```
 
