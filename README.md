@@ -77,27 +77,27 @@ expires - determines label lease time
 linger  - time for given label to be available again once it expires
 ```
 
-The basic usage is to enable flow labels via option IPV6_FLOWINFO_SEND, request a label via manager and then assign the label to the socket.
+The basic usage is to 1. enable flow labels via option IPV6_FLOWINFO_SEND, 2. request a label via manager and then 3. assign the label to the socket (and optionally 4. releasing the flow label).
 ```
 struct sockaddr_in6 *dst
 struct in6_flowlabel_req freq;
 
 
-setsockopt(fd, SOL_IPV6, IPV6_FLOWINFO_SEND, 1)                     
+1. setsockopt(fd, SOL_IPV6, IPV6_FLOWINFO_SEND, 1)                     
 freq.flr_label = <label_to_set>;
 freq.flr_action = IPV6_FL_A_GET;
 freq.flr_share = IPV6_FL_S_ANY;
-setsockopt(fd, SOL_IPV6, IPV6_FLOWLABEL_MGR,freq)
+2. setsockopt(fd, SOL_IPV6, IPV6_FLOWLABEL_MGR,freq)
 
-dst->sin6_flowinfo = freq.flr_label;
+3. dst->sin6_flowinfo = freq.flr_label;
 
-freq.flr_action = IPV6_FL_A_PUT;
+freq.flr_action = IPV6_FL_A_PUT;  (4. optionally release the flow label)
 setsockopt(fd, SOL_IPV6, IPV6_FLOWLABEL_MGR, freq)
 ```
 
 ***TCP details***
 
-What was presented on the previous slide works on the client side (for both TCP and UDP), but not on the server side. Likely because flow is already established once server accept() is reached.
+This works on the client side (for both TCP and UDP), but not on the server side. Likely because flow is already established once server accept() is reached.
 
 Socket option IPV6_FL_F_REFLECT, motivated by RFC7690, will reflect incoming flows labels in the outgoing packets.
 
@@ -105,7 +105,7 @@ Can be enabled via flow manager or directly via sysctl (only TCP, ICMP)
 
 Reading flow labels:
 - Using sysctl, via /proc/net/ipv6/ip6_flowlabel
-  - Can be also accessed via flow manager by calling getsockopt using action IPV6_FL_A_GET
+  - Can be also accessed via flow manager by calling getsockopt() using action IPV6_FL_A_GET
   - Returns all local flow labels - system wide (also works with reflection enabled)
 - Using flow manager and action IPV6_FL_A_REMOTE
   - Returns remote flow label - flow label on the incoming packets (Note: didn’t work for me in the tests, possible conversion issue or a bug)
