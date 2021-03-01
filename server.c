@@ -1,15 +1,11 @@
-//
-// Created by Marian Babik on 11/18/20.
-//
-#include<stdio.h>
-#include<string.h>	//strlen
-#include<stdlib.h>	//strlen
-#include<sys/socket.h>
-#include<arpa/inet.h>	//inet_addr
-#include<unistd.h>	//write
-#include<pthread.h> //for threading , link with lpthread
-#include <linux/in.h>
 #include <linux/in6.h>
+#include<stdio.h>
+#include<string.h>	
+#include<stdlib.h>	
+#include<sys/socket.h>
+#include<arpa/inet.h>	
+#include<unistd.h>	
+#include<pthread.h> 
 #include <errno.h>
 
 int enable_flow_label(int sock)
@@ -45,7 +41,55 @@ int set_flow_label(int sock, struct sockaddr_in6 *sa6P, int flowlabel)
         printf("setsockopt: %s\n", strerror(errno));
         return 1;
     }
+    sa6P->sin6_flowinfo = freq->flr_label;
     return 0;
+}
+
+
+int get_flow_labels(int sockfd)
+{
+    int s;
+    struct in6_flowlabel_req freq;
+    int size = sizeof(freq);
+    freq.flr_action = IPV6_FL_A_GET;
+    getsockopt(sockfd, IPPROTO_IPV6, IPV6_FLOWLABEL_MGR, &freq, &size);
+    printf("Local Label %05X share %d expires %d linger %d\n", ntohl(freq.flr_label), freq.flr_share,
+                                                         freq.flr_linger, freq.flr_expires);
+    return 0;
+}
+
+unsigned int get_remote_flow_label(int sockfd)
+{
+    int s;
+    struct in6_flowlabel_req freq;
+    int size = sizeof(freq);
+    freq.flr_action = IPV6_FL_F_REMOTE;
+    getsockopt(sockfd, IPPROTO_IPV6, IPV6_FLOWLABEL_MGR, &freq, &size);
+    printf("Remote Label 0x%x\n", freq.flr_label);
+    return freq.flr_label;
+}
+
+void enable_tclass(int sockfd)
+{
+    int on = 1;
+    if (setsockopt(sockfd, IPPROTO_IPV6, IPV6_RECVTCLASS,   &on, sizeof(on)) < 0 ){
+        printf("setsockopt tclass enable: %s\n", strerror(errno));
+    }
+}
+
+int set_tclass(int sockfd, int tclass)
+{
+    if (setsockopt(sockfd, IPPROTO_IPV6, IPV6_TCLASS, &tclass, sizeof(tclass)) < 0) {
+        printf("setsockopt tclass: %s\n", strerror(errno));
+        return 1;
+    }
+}
+
+int get_tclass(int sockfd)
+{
+    int tclass = 0;
+    getsockopt(sockfd, IPPROTO_IPV6, IPV6_TCLASS, tclass, sizeof(tclass);
+    return tclass;
 }
 
 //the thread function
@@ -66,7 +110,7 @@ int main(int argc , char *argv[])
     }
     puts("socket created");
     flag = 1;
-    setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
+    enable_flow_label(socket_desc);
 
     //Prepare the sockaddr_in structure
     server_addr.sin6_family = AF_INET6;
@@ -99,6 +143,9 @@ int main(int argc , char *argv[])
         printf("new connection from: %s:%d ...\n",
                str_addr,
                ntohs(client_addr.sin6_port));
+	    enable_flow_label(client_sock);
+	    enable_tclass(client_sock);
+        get_remote_flow_label(client_sock);
 
         pthread_t sniffer_thread;
         new_sock = malloc(1);
@@ -133,11 +180,16 @@ void *connection_handler(void *socket_desc)
     int sock = *(int*)socket_desc;
     int read_size;
     char *message , client_message[2000];
+    int optval;
+    socklen_t optlen = sizeof(optval);
 
     //Receive a message from client
     while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
     {
         //Send the message back to client
+        get_flow_labels(sock);
+        get_remote_flow_label(sock);
+	set_tclass(sock, 252);
         write(sock , client_message , strlen(client_message));
     }
 
