@@ -1,6 +1,6 @@
 
 
-This repository provides unofficial documentation of the IPV6 FLOWLABEL implementation in the Linux kernel together with some sample code.
+This repository provides notes on the IPV6 FLOWLABEL implementation in the Linux kernel together with references and some sample code.
 
 The code was tested on Fedora 33 (kernel 5.8.15-301). The following sysctl settings were used (see below for explanation):
 ```
