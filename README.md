@@ -60,7 +60,7 @@ This was based on RFC 1809 and RFC 2460, which had a number of restrictions (in 
 - Labels must have finite lifetime (expiration time) and can’t be re-used right away (linger time); 
 
 Since then mostly maintenance changes ([commit history](https://github.com/torvalds/linux/commits/master?before=dcc0b49040c70ad827a7f3d58a21b01fdb14e749+35&branch=master&path%5B%5D=net&path%5B%5D=ipv6&path%5B%5D=ip6_flowlabel.c)), but there were also some new features added:
-- Auto flow labels - automatically generate flow labels based on a flow hash of the packet (RFC 6437)
+- Auto flow labels - automatically generate flow labels based on a flow hash of the packet (RFC 6437; and this [talk](https://datatracker.ietf.org/meeting/110/materials/slides-110-v6ops-tcp-socket-hash-flow-label-00))
 - Florent Fourcot removed some of the historical restrictions (following RFCs 3697/6437) and added flow label reflections; first commits were in kernel 3.11 (2014)
 - Tom Herbert - split label space into two ranges, one for auto labels and the other for the original usage (motivated by RFC 6438)
 
