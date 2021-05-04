@@ -1,3 +1,7 @@
+//
+// Created by Marian Babik on 11/18/20.
+//
+
 #include <linux/in6.h>
 #include <stdio.h>
 #include <string.h>
@@ -5,6 +9,24 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+
+int socket_reuse(int sock) {
+	int reuse = 1;
+
+        if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
+		      (const char*)&reuse, sizeof(reuse)) < 0)
+        {
+                perror("SO_REUSEADDR failed");
+                return -1;
+        }
+
+        if(setsockopt(sock, SOL_SOCKET, SO_REUSEPORT,
+		      (const char*)&reuse, sizeof(reuse)) < 0)
+        {
+                perror("SO_REUSEPORT failed");
+                return -1;
+        }
+}
 
 int enable_flow_label(int sock) {
     int on = 1;
@@ -103,6 +125,9 @@ int main(int argc, char *argv[]) {
     inet_pton(AF_INET6, argv[1], &server_addr.sin6_addr);
     server_addr.sin6_port = htons(24999);
 
+    printf("socket reuse enabled\n");
+    socket_reuse(sock);
+
     printf("flow label enabled\n");
     enable_flow_label(sock);
     set_flow_label(sock, &server_addr, 255);
@@ -144,6 +169,9 @@ int main(int argc, char *argv[]) {
     }
     //try to change options while communicating
     for (i = 2; i < 6; ++i) {
+	    set_flow_label(sock, &server_addr, 254);
+        server_addr.sin6_flowinfo = htonl(254 & IPV6_FLOWINFO_FLOWLABEL);
+
         printf("tclass 0x%x\n", 140);
         set_tclass(sock, 140);
         sprintf(message, "test message # %d\n", i);

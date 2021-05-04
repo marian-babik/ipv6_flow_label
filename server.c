@@ -1,11 +1,14 @@
+//
+// Created by Marian Babik on 11/18/20.
+//
 #include <linux/in6.h>
 #include<stdio.h>
-#include<string.h>	
-#include<stdlib.h>	
+#include<string.h>	//strlen
+#include<stdlib.h>	//strlen
 #include<sys/socket.h>
-#include<arpa/inet.h>	
-#include<unistd.h>	
-#include<pthread.h> 
+#include<arpa/inet.h>	//inet_addr
+#include<unistd.h>	//write
+#include<pthread.h> //for threading , link with lpthread
 #include <errno.h>
 
 int enable_flow_label(int sock)
@@ -83,13 +86,6 @@ int set_tclass(int sockfd, int tclass)
         printf("setsockopt tclass: %s\n", strerror(errno));
         return 1;
     }
-}
-
-int get_tclass(int sockfd)
-{
-    int tclass = 0;
-    getsockopt(sockfd, IPPROTO_IPV6, IPV6_TCLASS, tclass, sizeof(tclass);
-    return tclass;
 }
 
 //the thread function
@@ -189,7 +185,7 @@ void *connection_handler(void *socket_desc)
         //Send the message back to client
         get_flow_labels(sock);
         get_remote_flow_label(sock);
-	set_tclass(sock, 252);
+	    set_tclass(sock, 252);
         write(sock , client_message , strlen(client_message));
     }
 
