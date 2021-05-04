@@ -2,7 +2,7 @@
 
 This repository provides notes on the IPV6 DST OPTS and FLOWLABEL implementation in the Linux kernel together with references and some sample code.
 
-The code was tested on Fedora 33 (kernel 5.8.15-301). 
+The code was tested on Fedora 33 (kernel 5.8.15-301). It provides sample client and server implementations that will set/change flow label (or destination options) and exchange couple of sample packets between them.
 
 To run a simple IPv6 DST Options exercise, compile using:
 ```
