@@ -1,6 +1,6 @@
 
 
-This repository provides notes on the IPV6 FLOWLABEL implementation in the Linux kernel together with references and some sample code.
+This repository provides notes on the IPV6 DST OPTS and FLOWLABEL implementation in the Linux kernel together with references and some sample code.
 
 The code was tested on Fedora 33 (kernel 5.8.15-301). The following sysctl settings were used (see below for explanation):
 ```
@@ -8,6 +8,16 @@ The code was tested on Fedora 33 (kernel 5.8.15-301). The following sysctl setti
 # /proc/sys/net/ipv6/flowlabel_consistency -> 0
 # /proc/sys/net/ipv6/auto_flowlabels -> 0
 # /proc/sys/net/ipv6/flowlabel_state_ranges -> 0
+```
+To run a simple IPv6 DST Options exercise, compile using:
+```
+# gcc client_dst.c util.c -o client_dst
+# gcc server_dst.c util.c -o server_dst
+```
+To run:
+```
+# ./client_dst <ip> <port>
+# ./server_dst <port>
 ```
 
 To run a simple IPv6 TCP flow label exercise, compile using:
@@ -23,13 +33,13 @@ To run (server will bind to all interfaces and will listen on port 24999):
 
 Note that this only works on IPv6 enabled machines. 
 
-To check the traffic you can use e.g. tshark like this:
+To check the traffic you can use e.g. tshark like this (change port according to your settings):
 ```
-# tshark -i veth0 -f "ip6" -T fields -e frame.number -e frame.time_delta -e ipv6.src -e ipv6.dst \
-  -e tcp.port -e ipv6.flow -e ipv6.tclass.dscp
+# tshark -i veth0 -f "ip6 and port 24999" -T fields -e frame.number -e frame.time_delta -e ipv6.src -e ipv6.dst \
+  -e tcp.port -e ipv6.flow 
 ```
 
-You can check what existing flow labels are tracked by the system via:
+You can check what flow labels are tracked by the system via:
 ```
 # cat /proc/net/ip6_flowlabel
 Label S Owner  Users  Linger Expires  Dst                              Opt
@@ -48,7 +58,7 @@ To run:
 # ./udp_server
 ```
 
-**Documentation**
+**Flow Label Notes**
 
 ***History***
 
@@ -112,11 +122,11 @@ Reading flow labels:
 
 ***UDP details***
 
-UDP works the same way for the client, but not on the server (reflection is TCP only feature), however UDP has a simpler interface and it’s easier to get access to the ancillary data when overriding default calls (sendto/recvfrom).
+UDP works the same way for the client, but not on the server (reflection is TCP only feature), however UDP has a simpler interface and it’s easier to get access to the ancillary data when using recvfrom() call.
 
-UDP client/server examples are using ancillary data to set/get/change/reflect labels as needed. 
+UDP server is using ancillary data to set/get/change/reflect labels as needed. 
 
-***SYSCTL settings***
+***sysctl settings***
 https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
 
 ```
@@ -183,6 +193,7 @@ flowlabel_reflect - INTEGER
 
 	Default is 0.
 ```
+
 
 
 
