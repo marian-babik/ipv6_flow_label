@@ -35,8 +35,8 @@ Run (server will bind to all interfaces and will listen on port 24999):
 
 To check the traffic you can use e.g. tshark like this (change port according to your settings):
 ```
-# tshark -i veth0 -f "ip6 and port 24999" -T fields -e frame.number -e frame.time_delta -e ipv6.src -e ipv6.dst \
-  -e tcp.port -e ipv6.flow 
+# tshark -i veth0 -f "ip6 and port 24999" -T fields -e frame.number -e frame.time_delta \
+         -e ipv6.src -e ipv6.dst -e tcp.port -e ipv6.flow 
 ```
 
 You can check what flow labels are tracked by the system via:
