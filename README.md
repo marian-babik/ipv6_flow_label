@@ -2,36 +2,36 @@
 
 This repository provides notes on the IPV6 DST OPTS and FLOWLABEL implementation in the Linux kernel together with references and some sample code.
 
-The code was tested on Fedora 33 (kernel 5.8.15-301). The following sysctl settings were used (see below for explanation):
+The code was tested on Fedora 33 (kernel 5.8.15-301). 
+
+To run a simple IPv6 DST Options exercise, compile using:
+```
+# gcc client_dst.c util.c -o client_dst
+# gcc server_dst.c util.c -o server_dst
+```
+and run from IPv6 capable hosts:
+```
+# ./client_dst <ip> <port>
+# ./server_dst <port>
+```
+
+To run a simple IPv6 TCP flow label exercise, the following sysctl settings were used (see below for explanation):
 ```
 # /proc/sys/net/ipv6/flowlabel_reflect -> 1
 # /proc/sys/net/ipv6/flowlabel_consistency -> 0
 # /proc/sys/net/ipv6/auto_flowlabels -> 0
 # /proc/sys/net/ipv6/flowlabel_state_ranges -> 0
 ```
-To run a simple IPv6 DST Options exercise, compile using:
-```
-# gcc client_dst.c util.c -o client_dst
-# gcc server_dst.c util.c -o server_dst
-```
-To run:
-```
-# ./client_dst <ip> <port>
-# ./server_dst <port>
-```
-
-To run a simple IPv6 TCP flow label exercise, compile using:
+Compilation:
 ```
 # gcc client.c -o client
 # gcc -pthread server.c -o serve
 ```
-To run (server will bind to all interfaces and will listen on port 24999):
+Run (server will bind to all interfaces and will listen on port 24999):
 ```
 # ./server
 # ./client <ipv6_addr_of_server>
 ```
-
-Note that this only works on IPv6 enabled machines. 
 
 To check the traffic you can use e.g. tshark like this (change port according to your settings):
 ```
@@ -52,7 +52,7 @@ To run a simple IPv6 UDP flow label exercise, which implements simple reflection
 # gcc udp_client.c -o udp_client
 ```
 
-To run:
+Then run as follows:
 ```
 # ./udp_client <server_addr>
 # ./udp_server
