@@ -126,6 +126,12 @@ UDP works the same way for the client, but not on the server (reflection is TCP 
 
 UDP server is using ancillary data to set/get/change/reflect labels as needed. 
 
+***Other***
+
+Additional discussion on using flow label in a particular implementation and survey of other RFCs can be found in:
+* https://datatracker.ietf.org/doc/draft-cc-v6ops-wlcg-flow-label-marking/
+
+
 ***sysctl settings***
 https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
 
@@ -193,6 +199,8 @@ flowlabel_reflect - INTEGER
 
 	Default is 0.
 ```
+
+
 
 
 
